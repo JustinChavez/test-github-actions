@@ -1,4 +1,4 @@
-name: Update issue on P1 label
+name: Update issue on P1 label new
 
 on:
   issues:
