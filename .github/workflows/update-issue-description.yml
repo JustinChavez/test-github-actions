@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Print current directory
+          run: pwd
       - name: Check if label is present and is "P1"
         if: github.event.label.name == 'P1'
         run: |
