@@ -1,5 +1,7 @@
 name: Update Issue Description
-
+uses: your-username/your-repo-name@master
+with:
+  token: ${{ secrets.GITHUB_TOKEN }}
 on:
   issues:
     types: [labeled]
