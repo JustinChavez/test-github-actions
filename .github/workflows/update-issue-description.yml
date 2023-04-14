@@ -1,25 +1,37 @@
-name: Update Issue Description
-uses: your-username/your-repo-name@master
-with:
-  token: ${{ secrets.GITHUB_TOKEN }}
+name: Update issue on P1 label
+
 on:
   issues:
     types: [labeled]
 
 jobs:
-  update-issue-description:
+  update_issue:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Print current directory
-        run: pwd
-      - name: Check if label is present and is "P1"
-        if: github.event.label.name == 'P1'
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Update issue on P1 label
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Label 'P1' is present"
-          git config --global user.email "github-actions@github.com"
-          git config --global user.name "GitHub Actions"
-          git checkout ${{ github.event.issue.number }}
-          echo "\nautolabeler:P1" >> ${{ github.event.issue.body }}
-          git commit -am "Update issue description"
-          git push
+          # Get the event payload
+          payload=$(cat $GITHUB_EVENT_PATH)
+          
+          # Get the label name that was added
+          label=$(echo "$payload" | jq -r '.label.name')
+          
+          # Check if the label is "P1"
+          if [[ $label == "P1" ]]; then
+            # Get the current issue description
+            description=$(echo "$payload" | jq -r '.issue.body')
+            
+            # Append the autolabeler tag to the description
+            new_description="$description\n\nautolabeler:P1"
+            
+            # Update the issue with the new description
+            curl -X PATCH -H "Authorization: Bearer $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/$GITHUB_REPOSITORY/issues/$GITHUB_ISSUE_NUMBER \
+              -d "{\"body\":\"$new_description\"}"
+          fi
