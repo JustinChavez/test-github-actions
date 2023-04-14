@@ -1,0 +1,20 @@
+name: Update Issue Description
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  update-issue-description:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if label is present and is "P1"
+        if: github.event.label.name == 'P1'
+        run: |
+          echo "Label 'P1' is present"
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git checkout ${{ github.event.issue.number }}
+          echo "\nautolabeler:P1" >> ${{ github.event.issue.body }}
+          git commit -am "Update issue description"
+          git push
